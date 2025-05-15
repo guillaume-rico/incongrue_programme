@@ -26,6 +26,10 @@ This testing help text can be changed to help users of the extension.
    <param name="bool_param" type="bool" gui-text="God powers?">true</param>
    -->
    <param name="nom_fichier_entree" type="path" mode="file" filetypes="txt" gui-text="Fichier resultat:">c:/am/test.txt</param>
+    <param name="option_download" type="optiongroup" appearance="radio" gui-text="Evenements a télécharger">
+        <option value="monthevt">mois prochain</option>
+        <option value="20evt">20 prochains</option>
+    </param>
   <effect>
       <object-type>all</object-type>
       <effects-menu>

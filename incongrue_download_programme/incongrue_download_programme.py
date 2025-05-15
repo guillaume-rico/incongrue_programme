@@ -19,6 +19,7 @@ locale.setlocale(
 
 pars = argparse.ArgumentParser()
 pars.add_argument("--nom_fichier_entree", type=str, default="")
+pars.add_argument("--option_download", type=str, default="")
 args, unknown = pars.parse_known_args()
 
 fileName = args.nom_fichier_entree
@@ -26,11 +27,21 @@ f = open(fileName,"w+")
 f.write("date;heure;titre;soustitre\n")
 
 anneeActuelle = datetime.datetime.today().year
+dateMin = datetime.datetime.today()
 dateMax = datetime.datetime.today() + datetime.timedelta(days=1 * 365/12)
+
+# Si l'utilisateur sélectionne le mois prochain :
+if args.option_download == "monthevt" :
+    dateMin = datetime.datetime.today() + datetime.timedelta(days=1 * 365/12) 
+    dateMin = dateMin.replace(day=1)
+    dateMax = datetime.datetime.today() + datetime.timedelta(days=2 * 365/12) 
+    dateMax = dateMax.replace(day=1)
 
 listeMois = []
 
 dateDepasse = 0
+nbElement = 0
+
 for numPage in range(1, 10):
     url = "https://lincongrue.fr/events/liste/page/" + str(numPage) + "/"
     r = requests.get(url)
@@ -77,13 +88,25 @@ for numPage in range(1, 10):
                 event["titre"] = html.unescape(line.replace('</a>',"").replace("\xa0"," ").strip())
                 #print(line.replace('</a>',"").strip())
                 print(event)
-                if event["dateHard"] < dateMax :
+                toWrite = 0
+                if args.option_download == "monthevt" :
+                    if event["dateHard"] < dateMax and event["dateHard"] >= dateMin :
+                        toWrite = 1
+                    elif event["dateHard"] > dateMax :
+                        dateDepasse = 1
+                        
+                if args.option_download == "20evt" :
+                    toWrite = 1
+                
+                if toWrite == 1 :
                     # On retire les événements récurants :
                     if "Atelier Couture et/ou Tricot" not in event["titre"] and \
-                        "aide au numérique" not in event["titre"] :
+                        "aide au numérique" not in event["titre"] and \
+                        "Courses à pied" not in event["titre"] :
                         f.write(event["date"] + ";" + event["heure"] + ";" + event["titre"] + ";\n")
-                else :
-                    dateDepasse = 1
+                        nbElement = nbElement + 1
+    if args.option_download == "20evt" and nbElement >= 20 :
+        break
     if dateDepasse == 1 :
         break
 

@@ -1,5 +1,9 @@
 Extension inkscape pour créer le programme de l'incongrue
 
+Installer python sur votre ordinateur puis installer le packqage requests
+
+python -m pip install requests
+
 Mettres les dossiers :
  * incongrue_affiche_programme
  * incongrue_download_programme
