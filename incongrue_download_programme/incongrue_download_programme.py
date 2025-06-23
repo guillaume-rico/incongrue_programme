@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # coding=utf-8
-# python "C:\SLF\Perso\Tiers Lieu\programme\template_effect\getEvent.py"
+# python "C:\SLF\Perso\Tiers Lieu\programme\incongrue_programme\incongrue_download_programme\incongrue_download_programme.py" --nom_fichier_entree C:\AM\liste_evenement.txt --option_download monthevt
 """
 Test elements extra logic from svg xml lxml custom classes.
 """
@@ -33,9 +33,9 @@ dateMax = datetime.datetime.today() + datetime.timedelta(days=1 * 365/12)
 # Si l'utilisateur sélectionne le mois prochain :
 if args.option_download == "monthevt" :
     dateMin = datetime.datetime.today() + datetime.timedelta(days=1 * 365/12) 
-    dateMin = dateMin.replace(day=1)
+    dateMin = dateMin.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     dateMax = datetime.datetime.today() + datetime.timedelta(days=2 * 365/12) 
-    dateMax = dateMax.replace(day=1)
+    dateMax = dateMax.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
 
 listeMois = []
 
@@ -74,8 +74,8 @@ for numPage in range(1, 10):
                 
             nomMois = datetime.datetime.strptime(cleanLine[0:5] + ' ' + str(anneeActuelle),'%d %m %Y').strftime('%B')
             print(nomMois)
-            if nomMois not in listeMois :
-                if listeMois != [] :
+            if nomMois not in listeMois  :
+                if listeMois != [] and args.option_download != "monthevt" :
                     f.write(nomMois + ";;;\n")
                 listeMois.append(nomMois)
                 
@@ -113,7 +113,11 @@ for numPage in range(1, 10):
 # On ajoute les champs a changer
 f.write("\nChamps a changer dans le document :\n")
 f.write("champs;valeur\n")
-f.write("<dateprogramme>;" + ' et '.join(listeMois).upper() + "\n")
+if args.option_download != "monthevt"  :
+    f.write("<dateprogramme>;" + ' et '.join(listeMois).upper() + "\n")
+else : 
+    f.write("<dateprogramme>;" + listeMois[-1].upper() + "\n")
+
 
 f.close()
 

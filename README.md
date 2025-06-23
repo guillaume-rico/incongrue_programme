@@ -12,8 +12,6 @@ Mettres les dossiers :
 Dans le dossier :
  * C:\Users\<nom session utilisateur>\AppData\Roaming\inkscape\extensions
 
-Il faut avoir le packqage requests pour python d'installé
-
 Ouvrir un des fichiers modèles avec inkscape :
  * modele_affiche_programme.svg
  * modele_flyer_programme.svg
