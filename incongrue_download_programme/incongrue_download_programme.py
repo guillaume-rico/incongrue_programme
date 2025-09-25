@@ -100,9 +100,9 @@ for numPage in range(1, 10):
                 
                 if toWrite == 1 :
                     # On retire les événements récurants :
-                    if "Atelier Couture et/ou Tricot" not in event["titre"] and \
-                        "aide au numérique" not in event["titre"] and \
-                        "Courses à pied" not in event["titre"] :
+                    if "Atelier couture et/ou tricot" not in event["titre"] and \
+                        "Aide au numérique" not in event["titre"] and \
+                        "Course à pied" not in event["titre"] :
                         f.write(event["date"] + ";" + event["heure"] + ";" + event["titre"] + ";\n")
                         nbElement = nbElement + 1
     if args.option_download == "20evt" and nbElement >= 20 :
@@ -116,7 +116,8 @@ f.write("champs;valeur\n")
 if args.option_download != "monthevt"  :
     f.write("<dateprogramme>;" + ' et '.join(listeMois).upper() + "\n")
 else : 
-    f.write("<dateprogramme>;" + listeMois[-1].upper() + "\n")
+    # On indique le nom du mois suivant avec la premiere lettre en majuscule
+    f.write("<dateprogramme>;" + dateMin.strftime('%B')[0].upper() + dateMin.strftime('%B')[1:] + "\n")
 
 
 f.close()
