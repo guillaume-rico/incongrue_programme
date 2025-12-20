@@ -48,36 +48,44 @@ for numPage in range(1, 10):
     nl = 0
     for line in r.text.split("\n") :
         if "tribe-event-date-start" in line :
-            cleanLine = line.replace('<span class="tribe-event-date-start">',"").replace('</span> à <span class="tribe-event-time">',"-").strip()
+        
+            # print("Ligne : " + line)
+            # Deux cas, soit c'est un évenement sur plusieurs jours soit sur un nombre d'heure
             event = {}
-            jourEvenement = datetime.datetime.strptime(cleanLine[0:5] + ' ' + str(anneeActuelle),'%d %m %Y')
-            jourTemp = jourEvenement.strftime('%A')
-            jour = jourTemp[0].upper() + jourTemp[1:]
-            event["dateHard"] = jourEvenement
-            event["date"] = jour + " " + datetime.datetime.strptime(cleanLine[0:5] + ' ' + str(anneeActuelle),'%d %m %Y').strftime('%d').lstrip("0")
+            event["date"] = ""
             event["heure"] = ""
             event["titre"] = ""
-            if "de" in cleanLine[0:20] :
-                #18h00-21h00
-                heuredepart = cleanLine[9:11]
-                minutedepart = cleanLine[12:14]
-                heurefin = cleanLine[15:17]
-                minutefin = cleanLine[18:20]
+            if "tribe-event-time" in line :
+                # Evenement sur quelques heures 
+                cleanLine = line.replace('<span class="tribe-event-date-start">',"").replace('<span class="tribe-event-time">',"").replace('</span>',"").replace('</time>',"").strip()
+                cleanLineSplit = cleanLine.split(" ")
+                
+                jourEvenement = datetime.datetime.strptime(cleanLineSplit[0] + " " + cleanLineSplit[1] + " " + cleanLineSplit[2],'%d %B %Y')
+                jourTemp = jourEvenement.strftime('%A')
+                jour = jourTemp[0].upper() + jourTemp[1:]
+                event["dateHard"] = jourEvenement
+                event["date"] = jour + " " + jourEvenement.strftime('%d').lstrip("0")
+                
+                heureDepSplit = cleanLineSplit[4].split(":")
+                heureFinSplit = cleanLineSplit[6].split(":")
+                heuredepart = heureDepSplit[0]
+                minutedepart = heureDepSplit[1]
+                heurefin = heureFinSplit[0]
+                minutefin = heureFinSplit[1]
                 if minutedepart == "00" :
                     minutedepart = ""
                 if minutefin == "00" :
                     minutefin = ""
-                event["heure"] = heuredepart + "h" + minutedepart + "-" + heurefin + "h" + minutefin
-            else : 
-                tclean = cleanLine.replace('</span> à <span class="tribe-event-date-end">'," ")
-                event["date"] = "Du " + tclean[0:2] + " au " + tclean[6:8]
                 
-            nomMois = datetime.datetime.strptime(cleanLine[0:5] + ' ' + str(anneeActuelle),'%d %m %Y').strftime('%B')
-            print(nomMois)
-            if nomMois not in listeMois  :
-                if listeMois != [] and args.option_download != "monthevt" :
-                    f.write(nomMois + ";;;\n")
-                listeMois.append(nomMois)
+                event["heure"] = heuredepart + "h" + minutedepart + "-" + heurefin + "h" + minutefin
+                event["titre"] = ""
+            else :
+                # Evenement sur plusieurs jours
+                cleanLine = line.replace('<span class="tribe-event-date-start">',"").replace('<span class="tribe-event-date-end">',"").replace('</span>',"").replace('</time>',"").strip()
+                cleanLineSplit = cleanLine.split(" ")
+                jourEvenement = datetime.datetime.strptime(cleanLineSplit[0] + " " + cleanLineSplit[1] + " " + cleanLineSplit[2],'%d %B %Y')
+                event["dateHard"] = jourEvenement
+                event["date"] = "Du " + cleanLineSplit[0] + " au " + cleanLineSplit[4] 
                 
         if 'class="tribe-events-calendar-list__event-title-link tribe-common-anchor-thin"' in line :
             #print(line.replace('<span class="tribe-event-date-start">',""))
@@ -87,7 +95,7 @@ for numPage in range(1, 10):
             if nl == 4 :
                 event["titre"] = html.unescape(line.replace('</a>',"").replace("\xa0"," ").strip())
                 #print(line.replace('</a>',"").strip())
-                print(event)
+                # print(event)
                 toWrite = 0
                 if args.option_download == "monthevt" :
                     if event["dateHard"] < dateMax and event["dateHard"] >= dateMin :
@@ -100,14 +108,15 @@ for numPage in range(1, 10):
                 
                 if toWrite == 1 :
                     # On retire les événements récurants :
-                    if "Atelier couture et/ou tricot" not in event["titre"] and \
-                        "Aide au numérique" not in event["titre"] and \
-                        "Course à pied" not in event["titre"] :
+                    if "atelier couture" not in event["titre"].lower() and \
+                        "aide au numérique" not in event["titre"].lower() and \
+                        "course à pied" not in event["titre"].lower() :
                         f.write(event["date"] + ";" + event["heure"] + ";" + event["titre"] + ";\n")
                         nbElement = nbElement + 1
     if args.option_download == "20evt" and nbElement >= 20 :
         break
     if dateDepasse == 1 :
+        print("Date depasse")
         break
 
 # On ajoute les champs a changer
