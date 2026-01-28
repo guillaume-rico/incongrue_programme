@@ -55,8 +55,12 @@ class changeInlineTextBalise(inkex.EffectExtension):
         f.close()
         # On ajoute les éléments du clanedrier
         layer = self.svg.add(inkex.Group.new('my_label', is_layer=True))
-        offsetY = 1300 / len(self.listeEvenement)
-        yDate = 430
+        if len(self.listeEvenement) > 20 : 
+            offsetY = 1300 / len(self.listeEvenement)
+            yDate = 430
+        else :
+            offsetY = 1100 / len(self.listeEvenement)
+            yDate = 500
         yHeure = yDate + 30
         # On calul l'offset : 19 éléments pour 11.5
         numElem = 0
@@ -77,11 +81,7 @@ class changeInlineTextBalise(inkex.EffectExtension):
             # On ajoute le sous titre 
             if elem["soustitre"] != "" :
                 layer.append(self.add_texte(elem["soustitre"], 185, yHeure + offsetY * numElem, "normal", 33))
-            # Si l'heure est vide, on se décale pour les suivants
-            if elem["heure"] == "" :
-                yHeure = yHeure - offsetY/2
-                yDate = yDate - offsetY/2
-            # On ajoute une ligne 
+            # On ajoute une ligne horizontale
             pel = inkex.PathElement.new(path="m 0,0 L 650,0")
             pel.style = {
                 "stroke" : '#000000',
@@ -90,6 +90,10 @@ class changeInlineTextBalise(inkex.EffectExtension):
             }
             pel.transform = inkex.Transform('rotate(-3) translate(-20, ' + str(yDate + 38 + offsetY * numElem) + ')')
             layer.append(pel)
+            # Si l'heure est vide, on se décale pour les suivants
+            if elem["heure"] == "" and len(self.listeEvenement) > 20:
+                yHeure = yHeure - offsetY/2
+                yDate = yDate - offsetY/2
             
             numElem = numElem + 1
 

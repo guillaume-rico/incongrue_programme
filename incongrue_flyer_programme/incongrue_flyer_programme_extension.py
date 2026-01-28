@@ -78,7 +78,7 @@ class changeInlineTextBalise(inkex.EffectExtension):
             if elem["soustitre"] != "" :
                 layer.append(self.add_texte(elem["soustitre"], 540, yHeure + offsetY * numElem, "normal", 33))
             # Si l'heure est vide, on se décale pour les suivants
-            if elem["heure"] == "" :
+            if elem["heure"] == "" and len(self.listeEvenement) > 20 :
                 yHeure = yHeure - offsetY/2
                 yDate = yDate - offsetY/2
             # On ajoute une ligne entre deux éléments
